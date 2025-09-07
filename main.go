@@ -7,6 +7,14 @@ import (
 	"github.com/o1uch/goswatch/internal/service"
 )
 
+func RunSession(sw service.Stopwatcher) {
+	sw.Start()
+	time.Sleep(time.Second)
+	sw.SaveSplit()
+	sw.GetResults()
+	sw.Reset()
+}
+
 func main() {
 
 	fmt.Println("Go")
@@ -21,8 +29,12 @@ func main() {
 	time.Sleep(10 * time.Second)
 	testTime.SaveSplit()
 
-	r, _ := testTime.GetResults()
+	r := testTime.GetResults()
 	fmt.Println(r)
 
 	testTime.GetTime()
+
+
+
+
 }
