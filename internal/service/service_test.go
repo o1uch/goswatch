@@ -42,3 +42,13 @@ func TestStopwatch_Reset(t *testing.T) {
 	assert.Zero(t, s.pausedDuration, "Продолжительность паузы должна быть = 0 после Reset()")
 	assert.Nil(t, s.split, "После Reset() не должно быть никаких сохранённых промежутков времени")
 }
+
+func TestStopwatch_PauseAndReme(t *testing.T) {
+	s := Stopwatch{}
+	s.Start()
+	time.Sleep(3 * time.Second)
+
+	s.Pause()
+	assert.Equal(t, true, s.isPaused, "Stopwatch.isPaused должен быть true после Pause()")
+
+}

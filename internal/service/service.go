@@ -16,6 +16,9 @@ var (
 	ErrCountValnFunc       = errors.New("count of values in the function is incorrect")
 )
 
+// для тестирования
+type TimeProvider func() time.Time
+
 type Stopwatch struct {
 	// default
 	isWorking bool      // старт работы таймера
@@ -27,6 +30,9 @@ type Stopwatch struct {
 	pausedDuration time.Duration // время, проведённое на паузе
 
 	split []Split // структура для фиксации отрезков времени
+
+	//элемент тестирования
+	now TimeProvider
 }
 
 type Split struct {
@@ -45,6 +51,10 @@ type Stat struct {
 	AllpausedTime time.Duration
 }
 
+func NewStopwatch(tp TimeProvider) *Stopwatch {
+	return &Stopwatch{now: tp}
+}
+
 // запустить и сбросить таймер
 func (s *Stopwatch) Start() error {
 	if s.isWorking {
@@ -52,7 +62,7 @@ func (s *Stopwatch) Start() error {
 	}
 
 	s.isWorking = true
-	s.startTime = time.Now()
+	s.startTime = NewStopwatch(time.Now())
 	s.split = nil
 	return nil
 }
