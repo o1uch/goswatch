@@ -62,7 +62,7 @@ func (s *Stopwatch) Start() error {
 	}
 
 	s.isWorking = true
-	s.startTime = NewStopwatch(time.Now())
+	s.startTime = s.now()
 	s.split = nil
 	return nil
 }
@@ -87,7 +87,7 @@ func (s *Stopwatch) Pause() error {
 	}
 
 	s.isPaused = true
-	s.pauseTime = time.Now()
+	s.pauseTime = s.now()
 	return nil
 }
 
@@ -96,7 +96,7 @@ func (s *Stopwatch) Resume() error {
 		return ErrTimerNotPaused
 	}
 
-	s.pausedDuration += time.Since(s.pauseTime)
+	s.pausedDuration += s.now().Sub(s.pauseTime)
 
 	s.isPaused = false
 	return nil
@@ -111,7 +111,7 @@ func (s *Stopwatch) SaveSplit() error {
 		return ErrCannotSaveSplit
 	}
 
-	s.split = append(s.split, Split{checkTime: time.Now(), pausedBefore: s.pausedDuration})
+	s.split = append(s.split, Split{checkTime: s.now(), pausedBefore: s.pausedDuration})
 	return nil
 }
 
@@ -125,7 +125,7 @@ func (s *Stopwatch) Elapsed() time.Duration {
 		return passed
 	}
 
-	passed := time.Since(s.startTime).Round(time.Second)
+	passed := s.now().Sub(s.startTime).Round(time.Second)
 	passed = passed - s.pausedDuration
 	return passed
 }

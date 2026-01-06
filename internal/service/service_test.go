@@ -7,6 +7,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type FakeTime struct {
+	current time.Time
+}
+
+func (f *FakeTime) Now() time.Time {
+	return f.current
+}
+
+func (f *FakeTime) Advanced(d time.Duration) {
+	f.current.Add(d)
+}
+
+func NewFakeTimeProvider(initialTime time.Time) (*FakeTime, TimeProvider) {
+	ft := &FakeTime{current: initialTime}
+	return ft, ft.Now
+}
+
 func TestStopwatch_Start(t *testing.T) {
 	sw := new(Stopwatch)
 
@@ -43,7 +60,7 @@ func TestStopwatch_Reset(t *testing.T) {
 	assert.Nil(t, s.split, "После Reset() не должно быть никаких сохранённых промежутков времени")
 }
 
-func TestStopwatch_PauseAndReme(t *testing.T) {
+func TestStopwatch_PauseAndRedume(t *testing.T) {
 	s := Stopwatch{}
 	s.Start()
 	time.Sleep(3 * time.Second)
