@@ -19,7 +19,7 @@ func main() {
 
 	fmt.Println("Go")
 
-	var testTime service.Stopwatch
+	testTime := service.Stopwatch{}
 	testTime.Start()
 	time.Sleep(3 * time.Second)
 	testTime.SaveSplit()
@@ -33,8 +33,5 @@ func main() {
 	fmt.Println(r)
 
 	testTime.GetTime()
-
-
-
 
 }
