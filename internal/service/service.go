@@ -13,25 +13,25 @@ var (
 	ErrTimerNotPaused      = errors.New("the timer is not paused")
 	ErrCannotSaveSplit     = errors.New("unable to save time - timer paused")
 	ErrListValues          = errors.New("the list of values is empty")
-	ErrCountValnFunc       = errors.New("count of values in the function is incorrect")
+	ErrCountValnFunc       = errors.New("count of values is incorrect")
 )
 
 type Stopwatch struct {
 	// default
-	isWorking bool      // старт работы таймера
-	startTime time.Time // время начала работы таймера
+	IsWorking bool      `json:"IsWorking" yaml:"IsWorking"` // старт работы таймера
+	StartTime time.Time `json:"StartTime" yaml:"StartTime"` // время начала работы таймера
 
 	// paused
-	isPaused       bool          // флаг постановки таймера на паузу
-	pauseTime      time.Time     // время начала паузы
-	pausedDuration time.Duration // время, проведённое на паузе
+	IsPaused       bool          `json:"IsPaused" yaml:"IsPaused"`             // флаг постановки таймера на паузу
+	PauseTime      time.Time     `json:"PauseTime" yaml:"PauseTime"`           // время начала паузы
+	PausedDuration time.Duration `json:"PausedDuration" yaml:"PausedDuration"` // время, проведённое на паузе
 
-	split []Split // структура для фиксации отрезков времени
+	Split []Split `json:"Split" yaml:"Split"` // структура для фиксации отрезков времени
 }
 
 type Split struct {
-	checkTime    time.Time     // сохраняет промежуточное время
-	pausedBefore time.Duration // время проведённое на паузе, до сохранения сплита
+	CheckTime    time.Time     // сохраняет текущее время на момент сохранения сплита
+	PausedBefore time.Duration // время проведённое на паузе, до сохранения сплита
 }
 
 type Stat struct {
@@ -47,115 +47,122 @@ type Stat struct {
 
 // запустить и сбросить таймер
 func (s *Stopwatch) Start() error {
-	if s.isWorking {
+	if s.IsWorking {
 		return ErrTimerAlreadyRunning
 	}
 
-	s.isWorking = true
-	s.startTime = time.Now()
-	s.split = nil
+	s.IsWorking = true
+	s.StartTime = time.Now()
+	s.Split = nil
 	return nil
 }
 
 func (s *Stopwatch) Reset() {
-	s.isWorking = false
-	s.startTime = time.Time{}
+	s.IsWorking = false
+	s.StartTime = time.Time{}
 
-	s.isPaused = false
-	s.pauseTime = time.Time{}
-	s.pausedDuration = 0
-	s.split = nil
+	s.IsPaused = false
+	s.PauseTime = time.Time{}
+	s.PausedDuration = 0
+	s.Split = nil
 }
 
+// поставить таймер на паузу
 func (s *Stopwatch) Pause() error {
-	if !s.isWorking {
+	if !s.IsWorking {
 		return ErrTimerNotStarted
 	}
 
-	if s.isPaused {
+	if s.IsPaused {
 		return ErrTimerAlreadyPaused
 	}
 
-	s.isPaused = true
-	s.pauseTime = time.Now()
+	s.IsPaused = true
+	s.PauseTime = time.Now()
 	return nil
 }
 
 func (s *Stopwatch) Resume() error {
-	if !s.isPaused {
+	if !s.IsPaused {
 		return ErrTimerNotPaused
 	}
 
-	s.pausedDuration += time.Since(s.pauseTime)
+	s.PausedDuration += time.Since(s.PauseTime)
 
-	s.isPaused = false
+	s.IsPaused = false
 	return nil
 }
 
-// зафиксировать время работы таймера в данный момент (без учета паузы)
+// сохранить промежуток времени работы таймера (создать метку времени) (без учета паузы)
 func (s *Stopwatch) SaveSplit() error {
 
-	if !s.isWorking {
+	if !s.IsWorking {
 		return ErrTimerNotStarted
-	} else if s.isPaused {
+	} else if s.IsPaused {
 		return ErrCannotSaveSplit
 	}
 
-	s.split = append(s.split, Split{checkTime: time.Now(), pausedBefore: s.pausedDuration})
+	s.Split = append(s.Split, Split{CheckTime: time.Now(), PausedBefore: s.PausedDuration})
 	return nil
 }
 
-// возвращает время от startTime до текущего момента за вычетом pausedDuration
+// возвращает время от StartTime до текущего момента за вычетом PausedDuration.
+// Считает, сколько времени потрачено.
 func (s *Stopwatch) Elapsed() time.Duration {
 
-	// если таймер на паузе — считает до момента pauseTime
-	if s.isPaused {
-
-		passed := s.pauseTime.Sub(s.startTime).Round(time.Second)
+	// если таймер на паузе — считает до момента PauseTime
+	if s.IsPaused {
+		passed := s.PauseTime.Sub(s.StartTime).Round(time.Second)
 		return passed
 	}
 
-	passed := time.Since(s.startTime).Round(time.Second)
-	passed = passed - s.pausedDuration
+	passed := time.Since(s.StartTime).Round(time.Second)
+	passed = passed - s.PausedDuration
 	return passed
 }
 
-// вернуть текущий результат из SaveSplit()
+// вернуть текущий результат из Stopwatch.Split
+// на данный момент времени возврадает в секундах. Как вариант можно доработать для
+// cli чтобы можно было указывать флаг с желаемым форматом времени (s, m, h) в output'e
 func (s *Stopwatch) GetResults() []time.Duration {
 
-	if len(s.split) == 0 {
+	if len(s.Split) == 0 {
 		return []time.Duration{}
 	}
 
 	var result []time.Duration
-	for _, v := range s.split {
-		currValue := v.checkTime.Sub(s.startTime) - v.pausedBefore
+	for _, v := range s.Split {
+		currValue := v.CheckTime.Sub(s.StartTime) - v.PausedBefore
 		result = append(result, currValue.Round(time.Second))
 	}
 	return result
 }
 
+// тут для cli можно сообразить тоже, что и для GetResults() выше.
 func (s *Stopwatch) GetSpentOnPause() time.Duration {
-	return s.pausedDuration.Round(time.Second)
+	return s.PausedDuration.Round(time.Second)
 }
 
+// тут, как вариант, можно рассмотреть сохранение в разных форматах: yml, json, просто вывод в консоль
 func (s Stopwatch) GetStatistics() Stat {
 
 	getSplits := s.GetResults()
 
 	return Stat{
-		IsWorking:     s.isWorking,
-		IsPaused:      s.isPaused,
-		StartTime:     s.startTime,
-		PausedTime:    s.pauseTime,
+		IsWorking:     s.IsWorking,
+		IsPaused:      s.IsPaused,
+		StartTime:     s.StartTime,
+		PausedTime:    s.PauseTime,
 		Elapsed:       s.Elapsed(),
-		SplitsCount:   len(s.split),
+		SplitsCount:   len(s.Split),
 		Splits:        getSplits,
-		AllpausedTime: s.pausedDuration,
+		AllpausedTime: s.PausedDuration,
 	}
 
 }
 
+// получить время время запуска таймера
+// для cli также можно организовать возможность указывать формат времени при вызове функции
 func (s *Stopwatch) GetTime(layout ...string) (string, error) {
 
 	// если задано больше одного аругмента
@@ -171,9 +178,9 @@ func (s *Stopwatch) GetTime(layout ...string) (string, error) {
 	}
 
 	// если таймер не запущен
-	if s.startTime.Equal(time.Time{}) {
+	if s.StartTime.Equal(time.Time{}) {
 		return "", ErrTimerNotStarted
 	}
 
-	return s.startTime.Format(timeLayout), nil
+	return s.StartTime.Format(timeLayout), nil
 }

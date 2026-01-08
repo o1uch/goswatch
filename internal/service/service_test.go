@@ -13,8 +13,8 @@ func TestStopwatch_Start(t *testing.T) {
 	// первичный запуск
 	err := sw.Start()
 	assert.NoError(t, err, "Start() не должна возвращать ошибку при первом запуске")
-	assert.False(t, sw.startTime.IsZero(), "Stopwatch.startTime не должен быть нулевым при запуске")
-	assert.True(t, sw.isWorking, "Stopwatch.isWorking должен быть true после запуска")
+	assert.False(t, sw.StartTime.IsZero(), "Stopwatch.startTime не должен быть нулевым при запуске")
+	assert.True(t, sw.IsWorking, "Stopwatch.isWorking должен быть true после запуска")
 
 	// повторный запуск
 	err = sw.Start()
@@ -34,11 +34,11 @@ func TestStopwatch_Reset(t *testing.T) {
 
 	s.Reset()
 
-	assert.False(t, s.isWorking, "Stopwatch.isWorking должен быть false после Reset()")
-	assert.True(t, s.startTime.IsZero(), "Время начала работы таймера должно быть = 0 после Reset()")
+	assert.False(t, s.IsWorking, "Stopwatch.isWorking должен быть false после Reset()")
+	assert.True(t, s.StartTime.IsZero(), "Время начала работы таймера должно быть = 0 после Reset()")
 
-	assert.False(t, s.isPaused, "Stopwatch.isPaused должен быть false после Reset()")
-	assert.True(t, s.pauseTime.IsZero(), "Не должно быть пауз при сброшенном таймере")
-	assert.Zero(t, s.pausedDuration, "Продолжительность паузы должна быть = 0 после Reset()")
-	assert.Nil(t, s.split, "После Reset() не должно быть никаких сохранённых промежутков времени")
+	assert.False(t, s.IsPaused, "Stopwatch.isPaused должен быть false после Reset()")
+	assert.True(t, s.PauseTime.IsZero(), "Не должно быть пауз при сброшенном таймере")
+	assert.Zero(t, s.PausedDuration, "Продолжительность паузы должна быть = 0 после Reset()")
+	assert.Nil(t, s.Split, "После Reset() не должно быть никаких сохранённых промежутков времени")
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/o1uch/goswatch/internal/service"
+	"github.com/o1uch/goswatch/internal/storage"
 )
 
 func RunSession(sw service.Stopwatcher) {
@@ -34,7 +35,6 @@ func main() {
 
 	testTime.GetTime()
 
-
-
+	storage.SaveYAML(&testTime)
 
 }
