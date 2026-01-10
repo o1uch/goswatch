@@ -63,3 +63,56 @@ func SaveYAML(s *service.Stopwatch) error {
 
 	return nil
 }
+
+func LoadJSON() (service.Stopwatch, error) {
+	sw := service.Stopwatch{}
+	fileName := "state.json"
+
+	execFile, err := os.Executable()
+	if err != nil {
+		return service.Stopwatch{}, fmt.Errorf("error getting executable file path: %w", err)
+	}
+
+	stateFile := path.Join(filepath.Dir(execFile), fileName)
+
+	raw, err := os.ReadFile(stateFile)
+	if err != nil {
+		return service.Stopwatch{}, fmt.Errorf("error reading the state-file:%w", err)
+	}
+
+	err = json.Unmarshal(raw, &sw)
+
+	if err != nil {
+		return service.Stopwatch{}, fmt.Errorf("data conversion error:%w", err)
+	}
+
+	return sw, nil
+}
+
+func LoadYAML() (service.Stopwatch, error) {
+	sw := service.Stopwatch{}
+	fileName := "state.yaml"
+
+	execFile, err := os.Executable()
+
+	if err != nil {
+		return service.Stopwatch{}, fmt.Errorf("error getting executable file path: %w", err)
+	}
+
+	stateFile := path.Join(filepath.Dir(execFile), fileName)
+
+	raw, err := os.ReadFile(stateFile)
+
+	if err != nil {
+		return service.Stopwatch{}, fmt.Errorf("error reading the state-file: %w", err)
+	}
+
+	err = yaml.Unmarshal(raw, sw)
+
+	if err != nil {
+		return service.Stopwatch{}, fmt.Errorf("data conversion error:%w", err)
+	}
+
+	return sw, nil
+
+}

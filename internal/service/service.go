@@ -30,8 +30,8 @@ type Stopwatch struct {
 }
 
 type Split struct {
-	CheckTime    time.Time     // сохраняет текущее время на момент сохранения сплита
-	PausedBefore time.Duration // время проведённое на паузе, до сохранения сплита
+	CheckTime    time.Time     `json:"CheckTime" yaml:"CheckTime"`       // сохраняет текущее время на момент сохранения сплита
+	PausedBefore time.Duration `json:"PausedBefore" yaml:"PausedBefore"` // время проведённое на паузе, до сохранения сплита
 }
 
 type Stat struct {

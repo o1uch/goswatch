@@ -35,6 +35,14 @@ func main() {
 
 	testTime.GetTime()
 
-	storage.SaveYAML(&testTime)
+	err := storage.SaveYAML(&testTime)
 
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	data, err := storage.LoadYAML()
+
+	fmt.Println(data)
 }
