@@ -1,10 +1,10 @@
 IsWorking: true
-StartTime: 2026-01-10T12:49:20.6639351+02:00
+StartTime: 2026-01-10T13:15:57.2009816+02:00
 IsPaused: false
-PauseTime: 2026-01-10T12:49:23.6645871+02:00
-PausedDuration: 4.0004768s
+PauseTime: 2026-01-10T13:16:00.2015262+02:00
+PausedDuration: 4.0001982s
 Split:
-    - CheckTime: 2026-01-10T12:49:23.6645871+02:00
+    - CheckTime: 2026-01-10T13:16:00.2015262+02:00
       PausedBefore: 0s
-    - CheckTime: 2026-01-10T12:49:37.665382+02:00
-      PausedBefore: 4.0004768s
+    - CheckTime: 2026-01-10T13:16:14.2019817+02:00
+      PausedBefore: 4.0001982s

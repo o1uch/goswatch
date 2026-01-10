@@ -44,5 +44,5 @@ func main() {
 
 	data, err := storage.LoadYAML()
 
-	fmt.Println(data)
+	fmt.Println(*data)
 }

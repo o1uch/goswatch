@@ -4,23 +4,36 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/o1uch/goswatch/internal/service"
 	"gopkg.in/yaml.v3"
 )
 
-func SaveJSON(s *service.Stopwatch) error {
-	// создаём Persistence file рядом с бинарным
+func stateFilePath(fName string) (string, error) {
 	execFile, err := os.Executable()
 
 	if err != nil {
-		return fmt.Errorf("error getting executable file path: %w", err)
+		return "", fmt.Errorf("error getting executable file path: %w", err)
 	}
 
-	fileName := "state.json"
-	stateFile := path.Join(filepath.Dir(execFile), fileName)
+	stateFilePath := filepath.Join(filepath.Dir(execFile), fName)
+
+	return stateFilePath, nil
+}
+
+func SaveJSON(s *service.Stopwatch) error {
+	// создаём persistence file рядом с бинарным
+
+	if s == nil {
+		return fmt.Errorf("Stopwatch is nil")
+	}
+
+	stateFile, err := stateFilePath("state.json")
+
+	if err != nil {
+		return err
+	}
 
 	data, err := json.Marshal(s)
 
@@ -40,14 +53,16 @@ func SaveJSON(s *service.Stopwatch) error {
 }
 
 func SaveYAML(s *service.Stopwatch) error {
-	execFile, err := os.Executable()
 
-	if err != nil {
-		return fmt.Errorf("error getting executable file path: %w", err)
+	if s == nil {
+		return fmt.Errorf("Stopwatch is nil")
 	}
 
-	fileName := "state.yaml"
-	stateFile := path.Join(path.Dir(execFile), fileName)
+	stateFile, err := stateFilePath("state.yaml")
+
+	if err != nil {
+		return err
+	}
 
 	data, err := yaml.Marshal(s)
 
@@ -64,53 +79,48 @@ func SaveYAML(s *service.Stopwatch) error {
 	return nil
 }
 
-func LoadJSON() (service.Stopwatch, error) {
-	sw := service.Stopwatch{}
-	fileName := "state.json"
+func LoadJSON() (*service.Stopwatch, error) {
+	sw := &service.Stopwatch{}
 
-	execFile, err := os.Executable()
+	stateFile, err := stateFilePath("state.json")
+
 	if err != nil {
-		return service.Stopwatch{}, fmt.Errorf("error getting executable file path: %w", err)
+		return nil, err
 	}
-
-	stateFile := path.Join(filepath.Dir(execFile), fileName)
 
 	raw, err := os.ReadFile(stateFile)
 	if err != nil {
-		return service.Stopwatch{}, fmt.Errorf("error reading the state-file:%w", err)
+		return nil, fmt.Errorf("error reading the state-file:%w", err)
 	}
 
-	err = json.Unmarshal(raw, &sw)
+	err = json.Unmarshal(raw, sw)
 
 	if err != nil {
-		return service.Stopwatch{}, fmt.Errorf("data conversion error:%w", err)
+		return nil, fmt.Errorf("data conversion error:%w", err)
 	}
 
 	return sw, nil
 }
 
-func LoadYAML() (service.Stopwatch, error) {
-	sw := service.Stopwatch{}
-	fileName := "state.yaml"
+func LoadYAML() (*service.Stopwatch, error) {
+	sw := &service.Stopwatch{}
 
-	execFile, err := os.Executable()
+	stateFile, err := stateFilePath("state.yaml")
 
 	if err != nil {
-		return service.Stopwatch{}, fmt.Errorf("error getting executable file path: %w", err)
+		return nil, err
 	}
-
-	stateFile := path.Join(filepath.Dir(execFile), fileName)
 
 	raw, err := os.ReadFile(stateFile)
 
 	if err != nil {
-		return service.Stopwatch{}, fmt.Errorf("error reading the state-file: %w", err)
+		return nil, fmt.Errorf("error reading the state-file: %w", err)
 	}
 
 	err = yaml.Unmarshal(raw, sw)
 
 	if err != nil {
-		return service.Stopwatch{}, fmt.Errorf("data conversion error:%w", err)
+		return nil, fmt.Errorf("data conversion error:%w", err)
 	}
 
 	return sw, nil
