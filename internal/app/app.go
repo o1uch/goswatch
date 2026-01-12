@@ -5,39 +5,33 @@ import (
 	"os"
 
 	"github.com/o1uch/goswatch/internal/service"
-	"github.com/o1uch/goswatch/internal/storage"
 )
 
+// смысл пакета в том, чтобы запустить "таймер" как сценарий. Не знает json это или yaml. Не знает, откуда пришла команда.
+// интерфейс для того, чтобы app не знало про storage
 type StateInterface interface {
 	Load() (*service.Stopwatch, error)
 	Save(*service.Stopwatch) error
 }
 
 func StartApp(state StateInterface) error {
-	sw := &service.Stopwatch{}
-	var err error
-	if format == "yaml" {
-		sw, err = storage.LoadYAML()
-	} else {
-		sw, err = storage.LoadJSON()
-	}
-
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-
-	err = sw.Start()
+	sw, err := state.Load()
 
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			sw = &service.Stopwatch{}
+		} else {
+			return err
+		}
+	}
+
+	if err := sw.Start(); err != nil {
 		return err
 	}
 
-	if format == "yaml" {
-		err = storage.SaveYAML(sw)
-	} else {
-		err = storage.SaveJSON(sw)
+	if err := state.Save(sw); err != nil {
+		return err
 	}
 
 	return nil
-
 }

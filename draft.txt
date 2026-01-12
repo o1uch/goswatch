@@ -1,0 +1,45 @@
+func ifTheStateFile(name string, sw *service.Stopwatch, err error) (*service.Stopwatch, error) {
+	if name == "yaml" {
+		sw, err = storage.LoadYAML()
+	} else {
+		sw, err = storage.LoadJSON()
+	}
+
+	if errors.Is(err, os.ErrNotExist) {
+		sw = &service.Stopwatch{}
+	} else {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return sw, nil
+}
+
+func StartApp(state StateInterface) error {
+	sw := &service.Stopwatch{}
+	var err error
+	if format == "yaml" {
+		sw, err = storage.LoadYAML()
+	} else {
+		sw, err = storage.LoadJSON()
+	}
+
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+
+	err = sw.Start()
+
+	if err != nil {
+		return err
+	}
+
+	if format == "yaml" {
+		err = storage.SaveYAML(sw)
+	} else {
+		err = storage.SaveJSON(sw)
+	}
+
+	return nil
+
+}

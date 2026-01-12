@@ -10,6 +10,29 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type YamlLoader struct {
+}
+
+type JsonLoader struct {
+}
+
+func (y *YamlLoader) Load() (*service.Stopwatch, error) {
+	return LoadYAML()
+}
+
+func (j *JsonLoader) Load() (*service.Stopwatch, error) {
+	return LoadJSON()
+}
+
+func (y *YamlLoader) Save(sw *service.Stopwatch) error {
+	return SaveYAML(sw)
+}
+
+func (j *JsonLoader) Save(sw *service.Stopwatch) error {
+	return SaveJSON(sw)
+}
+
+// реализовать сохранение в отдельный файл
 func stateFilePath(fName string) (string, error) {
 	execFile, err := os.Executable()
 
@@ -124,5 +147,4 @@ func LoadYAML() (*service.Stopwatch, error) {
 	}
 
 	return sw, nil
-
 }
