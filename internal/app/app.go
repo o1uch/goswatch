@@ -35,3 +35,20 @@ func StartApp(state StateInterface) error {
 
 	return nil
 }
+
+func ResetApp(state StateInterface) error {
+	sw, err := state.Load()
+
+	if err != nil {
+		return err
+	}
+
+	sw.Reset()
+
+	if err := state.Save(sw); err != nil {
+		return err
+	}
+
+	return nil
+
+}
