@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -24,6 +25,8 @@ func Run(args []string) int {
 		Commands: []*cli.Command{
 			startCommand(),
 			resetCommand(),
+			pauseCommand(),
+			resumeCommand(),
 		},
 	}
 
@@ -52,9 +55,9 @@ func startCommand() *cli.Command {
 
 			err := app.StartApp(state)
 
-			if err == service.ErrTimerAlreadyRunning {
+			if errors.Is(err, service.ErrTimerAlreadyRunning) {
 				fmt.Println("Таймер уже запущен")
-				return nil
+				return err
 			}
 
 			if err != nil {
@@ -90,6 +93,105 @@ func resetCommand() *cli.Command {
 			}
 
 			fmt.Println("Таймер сброшен")
+			return nil
+		},
+	}
+}
+
+func pauseCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "pause",
+		Usage: "поставить таймер на паузу",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "yaml",
+				Usage: "если используется state файл в формате yaml",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			state := stateFlagSelector(ctx)
+
+			err := app.PauseApp(state)
+
+			if errors.Is(err, service.ErrTimerNotStarted) {
+				fmt.Println("Не удалось остановить. Таймер не запущен")
+				return err
+			}
+
+			if errors.Is(err, service.ErrTimerAlreadyPaused) {
+				fmt.Println("Таймер уже остановлен")
+				return err
+			}
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
+	}
+
+}
+
+func resumeCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "resume",
+		Usage: "снять таймер с паузы",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "yaml",
+				Usage: "если используется state файл в формате yaml",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+
+			state := stateFlagSelector(ctx)
+
+			err := app.ResumeApp(state)
+
+			if errors.Is(err, service.ErrTimerNotPaused) {
+				fmt.Println("Таймер не остановлен")
+				return err
+			}
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
+	}
+}
+
+func saveSplitCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "savesplit",
+		Aliases: []string{"ss"},
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "yaml",
+				Usage: "если используется state файл в формате yaml",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			state := stateFlagSelector(ctx)
+
+			err := app.SaveSplitApp(state)
+
+			if errors.Is(err, service.ErrTimerNotStarted) {
+				fmt.Println("невозможно сохранить split. Таймер не запущен")
+				return err
+			}
+
+			if errors.Is(err, service.ErrCannotSaveSplit) {
+				fmt.Println("невозможно сохранить split. Таймер на паузе")
+				return err
+			}
+
+			if err != nil {
+				return err
+			}
+
 			return nil
 		},
 	}

@@ -52,3 +52,58 @@ func ResetApp(state StateInterface) error {
 	return nil
 
 }
+
+func PauseApp(state StateInterface) error {
+	sw, err := state.Load()
+
+	if err != nil {
+		return err
+	}
+
+	if err := sw.Pause(); err != nil {
+		return err
+	}
+
+	if err := state.Save(sw); err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func ResumeApp(state StateInterface) error {
+	sw, err := state.Load()
+
+	if err != nil {
+		return err
+	}
+
+	if err := sw.Resume(); err != nil {
+		return err
+	}
+
+	if err := state.Save(sw); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SaveSplitApp(state StateInterface) error {
+	sw, err := state.Load()
+
+	if err != nil {
+		return err
+	}
+
+	if err := sw.SaveSplit(); err != nil {
+		return err
+	}
+
+	if err := state.Save(sw); err != nil {
+		return err
+	}
+
+	return nil
+}
