@@ -27,6 +27,8 @@ func Run(args []string) int {
 			resetCommand(),
 			pauseCommand(),
 			resumeCommand(),
+			saveSplitCommand(),
+			elapsedСommand(),
 		},
 	}
 
@@ -193,6 +195,63 @@ func saveSplitCommand() *cli.Command {
 			}
 
 			return nil
+		},
+	}
+}
+
+func elapsedСommand() *cli.Command {
+	return &cli.Command{
+		Name:  "elapsed",
+		Usage: "вывести время активности таймера",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "second",
+				Usage:   "форматирования вывода времени команды elapsed",
+				Aliases: []string{"s"},
+			},
+			&cli.BoolFlag{
+				Name:    "minute",
+				Usage:   "форматирования вывода времени команды elapsed",
+				Aliases: []string{"m"},
+			},
+			&cli.BoolFlag{
+				Name:    "hour",
+				Usage:   "форматирования вывода времени команды elapsed",
+				Aliases: []string{"h"},
+			},
+			&cli.BoolFlag{
+				Name:  "yaml",
+				Usage: "если используется state файл в формате yaml",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			state := stateFlagSelector(ctx)
+
+			d, err := app.ElapsedApp(state)
+
+			if err != nil {
+				return err
+			}
+
+			switch {
+			case ctx.Bool("second"):
+				output := Seconds(d)
+				fmt.Println(output)
+				return nil
+			case ctx.Bool("minute"):
+				output := Minutes(d)
+				fmt.Println(output)
+				return nil
+			case ctx.Bool("hour"):
+				output := Hours(d)
+				fmt.Println(output)
+				return nil
+			default:
+				output := DefaultFormat(d)
+				fmt.Println(output)
+				return nil
+			}
+
 		},
 	}
 }

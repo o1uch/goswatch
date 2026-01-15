@@ -112,11 +112,11 @@ func (s *Stopwatch) Elapsed() time.Duration {
 
 	// если таймер на паузе — считает до момента PauseTime
 	if s.IsPaused {
-		passed := s.PauseTime.Sub(s.StartTime).Round(time.Second)
+		passed := s.PauseTime.Sub(s.StartTime)
 		return passed
 	}
 
-	passed := time.Since(s.StartTime).Round(time.Second)
+	passed := time.Since(s.StartTime)
 	passed = passed - s.PausedDuration
 	return passed
 }
@@ -133,14 +133,14 @@ func (s *Stopwatch) GetResults() []time.Duration {
 	var result []time.Duration
 	for _, v := range s.Split {
 		currValue := v.CheckTime.Sub(s.StartTime) - v.PausedBefore
-		result = append(result, currValue.Round(time.Second))
+		result = append(result, currValue) // убрал округление до секунд result = append(result, currValue.Round(time.Second))
 	}
 	return result
 }
 
 // тут для cli можно сообразить тоже, что и для GetResults() выше.
 func (s *Stopwatch) GetSpentOnPause() time.Duration {
-	return s.PausedDuration.Round(time.Second)
+	return s.PausedDuration // убрал округление до секунд return s.PausedDuration.Round(time.Second)
 }
 
 // тут, как вариант, можно рассмотреть сохранение в разных форматах: yml, json, просто вывод в консоль
@@ -161,9 +161,9 @@ func (s Stopwatch) GetStatistics() Stat {
 
 }
 
-// получить время время запуска таймера
+// получить время запуска таймера
 // для cli также можно организовать возможность указывать формат времени при вызове функции
-func (s *Stopwatch) GetTime(layout ...string) (string, error) {
+func (s *Stopwatch) GetTimeFormat(layout ...string) (string, error) {
 
 	// если задано больше одного аругмента
 	if len(layout) > 1 {
@@ -184,3 +184,5 @@ func (s *Stopwatch) GetTime(layout ...string) (string, error) {
 
 	return s.StartTime.Format(timeLayout), nil
 }
+
+func (s *Stopwatch) GetTimeSecound() {}

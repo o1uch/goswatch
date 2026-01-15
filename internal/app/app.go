@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"os"
+	"time"
 
 	"github.com/o1uch/goswatch/internal/service"
 )
@@ -106,4 +107,16 @@ func SaveSplitApp(state StateInterface) error {
 	}
 
 	return nil
+}
+
+func ElapsedApp(state StateInterface) (time.Duration, error) {
+
+	sw, err := state.Load()
+
+	if err != nil {
+		return 0, err
+	}
+
+	duration := sw.Elapsed()
+
 }
