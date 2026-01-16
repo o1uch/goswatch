@@ -5,10 +5,6 @@ import (
 	"time"
 )
 
-func declension(time int) {
-
-}
-
 func Seconds(d time.Duration) string {
 	seconds := int(d.Seconds())
 
@@ -47,7 +43,7 @@ func Minutes(d time.Duration) string {
 }
 
 func Hours(d time.Duration) string {
-	return fmt.Sprintf("%.1f часов", d.Hours())
+	return fmt.Sprintf("%.1f часа", d.Hours())
 }
 
 func DefaultFormat(d time.Duration) string {
@@ -56,5 +52,5 @@ func DefaultFormat(d time.Duration) string {
 	minutes := int(d.Minutes()) % 60
 	seconds := int(d.Seconds()) % 60
 
-	return fmt.Sprintf("%02dhh:%02dmm:%02dss", hours, minutes, seconds)
+	return fmt.Sprintf("%02dh %02dm %02ds", hours, minutes, seconds)
 }

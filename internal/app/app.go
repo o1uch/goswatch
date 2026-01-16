@@ -119,4 +119,5 @@ func ElapsedApp(state StateInterface) (time.Duration, error) {
 
 	duration := sw.Elapsed()
 
+	return duration, nil
 }

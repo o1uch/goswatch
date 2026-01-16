@@ -29,6 +29,7 @@ func Run(args []string) int {
 			resumeCommand(),
 			saveSplitCommand(),
 			elapsedСommand(),
+			getResultCommand(),
 		},
 	}
 
@@ -252,6 +253,41 @@ func elapsedСommand() *cli.Command {
 				return nil
 			}
 
+		},
+	}
+}
+
+func getResultCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "splits",
+		Usage:   "вывести сплиты",
+		Aliases: []string{"gs"},
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "yaml",
+				Usage: "если используется state файл в формате yaml",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			state := stateFlagSelector(ctx)
+
+			data, err := app.GetResultApp(state)
+
+			if err != nil {
+				return err
+			}
+
+			if len(data) == 0 {
+				fmt.Println("нет сохранённых сплитов")
+				return nil
+			}
+
+			fmt.Println("Сплиты:")
+			for i, v := range data {
+				fmt.Printf("%d:  %v\n", i+1, DefaultFormat(v))
+			}
+
+			return nil
 		},
 	}
 }
