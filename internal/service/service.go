@@ -184,5 +184,3 @@ func (s *Stopwatch) GetTimeFormat(layout ...string) (string, error) {
 
 	return s.StartTime.Format(timeLayout), nil
 }
-
-func (s *Stopwatch) GetTimeSecound() {}

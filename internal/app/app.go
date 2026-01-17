@@ -121,3 +121,14 @@ func ElapsedApp(state StateInterface) (time.Duration, error) {
 
 	return duration, nil
 }
+
+func GetResultApp(state StateInterface) ([]time.Duration, error) {
+
+	sw, err := state.Load()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sw.GetResults(), nil
+}
